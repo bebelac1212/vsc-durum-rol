@@ -5,6 +5,7 @@ module.exports = async (client, config) => {
     client.once('ready', async () => {
         console.log('Bot hazır!');
         const guild = client.guilds.cache.get(config.guildid);
+
         if (guild) {
             const channel = guild.channels.cache.get(config.sesid);
             if (channel && channel.type === ChannelType.GuildVoice) {
@@ -47,35 +48,56 @@ module.exports = async (client, config) => {
 
                 await client.user.setPresence({
                     activities: [{ name: activityName, type: activityTypeEnum }],
-                    status: config.status
+                    status: 'online'
                 });
                 console.log('Oynuyor mesajı ayarlandı.');
             } catch (error) {
                 console.error('Oynuyor mesajı ayarlanırken hata: ', error);
             }
 
-            // Sunucudaki üyelerin özel durumlarını kontrol etme ve rollerini güncelleme
-            try {
-                const members = await guild.members.fetch();
-                members.forEach(member => {
-                    if (member.presence) {
-                        const presenceText = config.durum.trim();
-                        const presenceStatuses = member.presence.activities
-                            .filter(activity => activity.type === ActivityType.Custom)
-                            .map(activity => activity.state ? activity.state.trim() : 'Boş');
+            // Sürüm kontrolü
+            if (config.surum === "yeni") {
+                // Yeni işleyiş - Tam eşleşme
+                try {
+                    const members = await guild.members.fetch();
+                    members.forEach(member => {
+                        if (member.presence) {
+                            const presenceText = config.durum.trim();
+                            const presenceStatuses = member.presence.activities
+                                .filter(activity => activity.type === ActivityType.Custom)
+                                .map(activity => activity.state ? activity.state.trim() : 'Boş');
 
-                        if (presenceStatuses.includes(presenceText)) {
-                            addRoleToMember(member);
-                        } else {
-                            removeRoleFromMember(member);
+                            if (presenceStatuses.includes(presenceText)) {
+                                addRoleToMember(member);
+                            } else {
+                                removeRoleFromMember(member);
+                            }
                         }
-                    } else {
-                        // Üye çevrimdışıysa rol ver veya al, çevrimdışıyken özel durumunu kontrol edemediğimiz için bunu burada yapmıyoruz.
-                        // Bu durumda yalnızca çevrimiçi olanları kontrol ediyoruz.
-                    }
-                });
-            } catch (error) {
-                console.error('Üyelerin özel durumları kontrol edilirken hata: ', error);
+                    });
+                } catch (error) {
+                    console.error('Üyelerin özel durumları kontrol edilirken hata: ', error);
+                }
+            } else if (config.surum === "eski") {
+                // Eski işleyiş - İçerme kontrolü
+                try {
+                    const members = await guild.members.fetch();
+                    members.forEach(member => {
+                        if (member.presence) {
+                            const presenceText = config.durum.trim();
+                            const presenceStatuses = member.presence.activities
+                                .filter(activity => activity.type === ActivityType.Custom)
+                                .map(activity => activity.state ? activity.state.trim() : 'Boş');
+
+                            if (presenceStatuses.some(status => status.includes(presenceText))) {
+                                addRoleToMember(member);
+                            } else {
+                                removeRoleFromMember(member);
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Üyelerin özel durumları kontrol edilirken hata: ', error);
+                }
             }
         }
     });

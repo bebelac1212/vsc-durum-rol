@@ -8,6 +8,7 @@
 - **activity:** Botun Oynuyor Kısmı.
 - **type:** Oynuyor kısmı tipi ===> `PLAYING` = Oynuyor, `LISTENING` = Dinliyor, `WATCHING` = İzliyor.
 - **status:** Botun durumu (`online` = Aktif, `dnd` = Rahatsız Etme, `idle` = Boşta, `invisible` = Görünmez).
+- **surum:** eski/yeni Botun sürümü ==> eski yazarsanız özel durumunda kelimenin geçmesi yeterli örneğin durum kısmınız vsc kişinin özel durumu .gg/vsc de olsa rol verir | yeni = yazdığınız durum ile kişinin özel durumu tam eşleşirse rol verir örneğin vsc yaptınız .gg/vsc ye rol vermez
 
 # PROJE GLITCH DESTEKLEMEZ!
 

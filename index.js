@@ -30,15 +30,27 @@ client.on(Events.PresenceUpdate, (oldPresence, newPresence) => {
 
         const presenceText = config.durum.trim();
 
-        if (newPresenceStatuses.includes(presenceText)) {
-            // Durum uygun ise rolü ekle
-            if (!member.roles.cache.has(config.rolid)) {
-                addRoleToMember(member);
+        if (config.surum === "eski") {
+            // Eski işleyiş: Durum içeriğinde belirli bir metin olup olmadığını kontrol et
+            if (newPresenceStatuses.some(status => status.includes(presenceText))) {
+                if (!member.roles.cache.has(config.rolid)) {
+                    addRoleToMember(member);
+                }
+            } else {
+                if (member.roles.cache.has(config.rolid)) {
+                    removeRoleFromMember(member);
+                }
             }
-        } else {
-            // Durum uygun değilse rolü al
-            if (member.roles.cache.has(config.rolid)) {
-                removeRoleFromMember(member);
+        } else if (config.surum === "yeni") {
+            // Yeni işleyiş: Tam eşleşme durumunu kontrol et
+            if (newPresenceStatuses.includes(presenceText)) {
+                if (!member.roles.cache.has(config.rolid)) {
+                    addRoleToMember(member);
+                }
+            } else {
+                if (member.roles.cache.has(config.rolid)) {
+                    removeRoleFromMember(member);
+                }
             }
         }
     } else {
@@ -56,10 +68,20 @@ async function checkAllMembersPresence(guild) {
                 .filter(activity => activity.type === 4) // 4: CUSTOM_STATUS
                 .map(activity => activity.state ? activity.state.trim() : 'Boş');
 
-            if (presenceStatuses.includes(presenceText)) {
-                addRoleToMember(member);
-            } else {
-                removeRoleFromMember(member);
+            if (config.surum === "eski") {
+                // Eski işleyiş
+                if (presenceStatuses.some(status => status.includes(presenceText))) {
+                    addRoleToMember(member);
+                } else {
+                    removeRoleFromMember(member);
+                }
+            } else if (config.surum === "yeni") {
+                // Yeni işleyiş
+                if (presenceStatuses.includes(presenceText)) {
+                    addRoleToMember(member);
+                } else {
+                    removeRoleFromMember(member);
+                }
             }
         }
     });
