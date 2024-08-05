@@ -1,4 +1,4 @@
-@echo off
+@echo on
 title Durum Rol
 color 9
 echo Bot Baslatiliyor Lutfen Bekle
